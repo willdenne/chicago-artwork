@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Chicago Artwork</string>
+    <string name="loading">Loading</string>
+    <string name="retry">Click here to retry</string>
+    <string name="no_artwork">No artwork matched your query, please try another search.</string>
+    <string name="search">Search</string>
+    <string name="search_ellipsis">Search…</string>
+    <string name="error">Whoops something went wrong</string>
+    <string name="no_image_avalable">No image available</string>
+</resources>
