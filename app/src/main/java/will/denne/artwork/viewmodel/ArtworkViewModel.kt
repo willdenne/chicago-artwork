@@ -27,7 +27,13 @@ class ArtworkViewModel(
     }
 
     fun retry() {
-        getAllArtwork()
+        // reset page count just in case
+        currentPage = 1
+        if (_searchText.value.isEmpty()) {
+            getAllArtwork()
+        } else {
+            searchArtwork()
+        }
     }
 
     fun searchArtwork() {
@@ -65,7 +71,6 @@ class ArtworkViewModel(
 
     fun loadMoreArtwork() {
         currentPage++
-        Timber.d("WILL: current page loading $currentPage")
         viewModelScope.launch {
             try {
                 val artwork = if (_searchText.value.isEmpty()) {
@@ -75,6 +80,7 @@ class ArtworkViewModel(
                 }
                 val oldList = (_uiState.value as ArtworkScreenState.Success).artwork.toMutableList()
                 if (artwork.data.isEmpty() && oldList.isEmpty()) {
+                    // This shouldn't usually happen, but just in case
                     Timber.e("Error getting artwork, list is empty")
                     _uiState.value = ArtworkScreenState.Empty
                 } else {

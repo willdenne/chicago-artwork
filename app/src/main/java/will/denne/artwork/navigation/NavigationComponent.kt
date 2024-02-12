@@ -5,7 +5,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import will.denne.artwork.ui.artwork.ArtworkScreen
-import will.denne.artwork.ui.artworkdetail.ARTWORK_ID
 import will.denne.artwork.ui.artworkdetail.ArtworkDetailScreen
 
 @Composable
@@ -24,3 +23,4 @@ fun NavigationComponent() {
 
 const val ARTWORK_ROUTE = "artwork"
 const val ARTWORK_DETAIL_ROUTE = "artwork_detail"
+const val ARTWORK_ID = "artworkId"

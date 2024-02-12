@@ -42,7 +42,7 @@ fun ArtworkDetailScreen(artworkId: Int?) {
         is ArtworkDetailScreenState.Error -> {
             Error(
                 error = (uiState as ArtworkDetailScreenState.Error).errorMessage,
-                retry = { viewModel.retry() }
+                retry = viewModel::retry
             )
         }
 
@@ -133,5 +133,3 @@ fun HTMLText(
         update = { it.text = spannedText }
     )
 }
-
-const val ARTWORK_ID = "artworkId"

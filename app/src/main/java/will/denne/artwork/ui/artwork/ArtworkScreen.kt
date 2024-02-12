@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 import will.denne.artwork.R
 import will.denne.artwork.navigation.ARTWORK_DETAIL_ROUTE
 import will.denne.artwork.ui.shared.Error as ErrorComposable
@@ -110,7 +109,6 @@ fun ArtworkScreen(navController: NavController) {
                     }
                     item {
                         val hasLoadedLastPage = (uiState as? ArtworkScreenState.Success)?.hasLoadedLastPage == true
-                        Timber.d("WILL: loaded last page $hasLoadedLastPage")
                         LaunchedEffect(
                             endOfListReached
                         ) {
