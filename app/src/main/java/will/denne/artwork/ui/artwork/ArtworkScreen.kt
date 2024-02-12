@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 import will.denne.artwork.R
 import will.denne.artwork.navigation.ARTWORK_DETAIL_ROUTE
 import will.denne.artwork.ui.shared.Error as ErrorComposable
@@ -70,7 +71,7 @@ fun ArtworkScreen(navController: NavController) {
                         .padding(16.dp)
                         .fillMaxSize(),
                     textAlign = TextAlign.Center,
-                    text = stringResource(id = R.string.no_artwork),
+                    text = stringResource(R.string.no_artwork),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -109,11 +110,13 @@ fun ArtworkScreen(navController: NavController) {
                     }
                     item {
                         val hasLoadedLastPage = (uiState as? ArtworkScreenState.Success)?.hasLoadedLastPage == true
+                        Timber.d("WILL: loaded last page $hasLoadedLastPage")
                         LaunchedEffect(
                             endOfListReached
-                                    && !hasLoadedLastPage
                         ) {
-                            viewModel.loadMoreArtwork()
+                            if ( !hasLoadedLastPage ) {
+                                viewModel.loadMoreArtwork()
+                            }
                         }
                     }
                 }
@@ -139,13 +142,17 @@ fun ArtItem(
         Row(modifier = Modifier.padding(8.dp)) {
             Column {
                 Text(
-                    modifier = Modifier.padding(top = 4.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .fillMaxWidth(),
                     text = art.title,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Text(
-                    modifier = Modifier.padding(top = 4.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(top = 4.dp)
+                        .fillMaxWidth(),
                     text = art.artist,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.bodyMedium
@@ -177,7 +184,7 @@ fun SearchBox(
                 .padding(end = 8.dp)
                 .testTag("searchBox"),
             placeholder = {
-                Text(text = stringResource(id = R.string.search_ellipsis))
+                Text(text = stringResource(R.string.search_ellipsis))
             },
             trailingIcon = {
                 IconButton(
@@ -187,7 +194,7 @@ fun SearchBox(
                     Icon(
                         imageVector = Icons.Rounded.Search,
                         tint = MaterialTheme.colorScheme.onBackground,
-                        contentDescription = stringResource(id = R.string.search)
+                        contentDescription = stringResource(R.string.search)
                     )
                 }
             }

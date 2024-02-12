@@ -1,6 +1,7 @@
 package will.denne.artwork
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -16,8 +17,8 @@ class ArtworkScreenTests {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun searchBarReflectsInputText() {
-        composeTestRule.waitUntilExactlyOneExists(hasText("Number 19"))
-        composeTestRule.onNodeWithTag("searchBox").performTextInput("Charles Demuth")
+        composeTestRule.waitUntilExactlyOneExists(hasTestTag("searchBox"))
+        composeTestRule.onNodeWithTag("searchBox").performTextInput("Still Life: Apples and Green")
         composeTestRule.onNodeWithTag("searchButton").performClick()
         composeTestRule.waitUntilExactlyOneExists(hasText("Still Life: Apples and Green Glass"))
     }
@@ -25,7 +26,7 @@ class ArtworkScreenTests {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun searchingForInvalidArtworkShowsNoResults() {
-        composeTestRule.waitUntilExactlyOneExists(hasText("Number 19"))
+        composeTestRule.waitUntilExactlyOneExists(hasTestTag("searchBox"))
         composeTestRule.onNodeWithTag("searchBox").performTextInput("invalidsearchterm")
         composeTestRule.onNodeWithTag("searchButton").performClick()
         composeTestRule.waitUntilExactlyOneExists(hasText("No artwork matched your query, please try another search."))

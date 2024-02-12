@@ -31,6 +31,7 @@ class ArtworkViewModel(
     }
 
     fun searchArtwork() {
+        currentPage = 1
         _uiState.value = ArtworkScreenState.Loading
         if (_searchText.value.isEmpty()) {
             getAllArtwork()
@@ -48,7 +49,7 @@ class ArtworkViewModel(
                         artwork.data.map {
                             ArtworkUiModel.fromArtworkData(it)
                         },
-                        hasLoadedLastPage = artwork.pagination.totalPages == currentPage
+                        hasLoadedLastPage = artwork.pagination.totalPages <= currentPage
                     )
                 }
             } catch (e: Exception) {
@@ -64,20 +65,24 @@ class ArtworkViewModel(
 
     fun loadMoreArtwork() {
         currentPage++
+        Timber.d("WILL: current page loading $currentPage")
         viewModelScope.launch {
             try {
-                val artwork = artworkRepository.getArtworkList(currentPage)
-                if (artwork.data.isEmpty()) {
-                    Timber.e("Error getting artwork, list is empty")
-                    _uiState.value =
-                        ArtworkScreenState.Error(Exception("Whoops something went wrong"))
+                val artwork = if (_searchText.value.isEmpty()) {
+                    artworkRepository.getArtworkList(currentPage)
                 } else {
-                    val oldList = (_uiState.value as ArtworkScreenState.Success).artwork.toMutableList()
+                    artworkRepository.searchArtwork(currentPage, _searchText.value)
+                }
+                val oldList = (_uiState.value as ArtworkScreenState.Success).artwork.toMutableList()
+                if (artwork.data.isEmpty() && oldList.isEmpty()) {
+                    Timber.e("Error getting artwork, list is empty")
+                    _uiState.value = ArtworkScreenState.Empty
+                } else {
                     _uiState.value = ArtworkScreenState.Success(
                         oldList + artwork.data.map {
                             ArtworkUiModel.fromArtworkData(it)
                         },
-                        hasLoadedLastPage = artwork.pagination.totalPages == currentPage
+                        hasLoadedLastPage = artwork.pagination.totalPages <= currentPage
                     )
                 }
             } catch (e: Exception) {
@@ -102,7 +107,7 @@ class ArtworkViewModel(
                         artwork.data.map {
                             ArtworkUiModel.fromArtworkData(it)
                         },
-                        hasLoadedLastPage = artwork.pagination.totalPages == currentPage
+                        hasLoadedLastPage = artwork.pagination.totalPages <= currentPage
                     )
                 }
             } catch (e: Exception) {

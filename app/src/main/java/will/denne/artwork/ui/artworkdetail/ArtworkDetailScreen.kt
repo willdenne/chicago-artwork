@@ -70,7 +70,7 @@ fun ArtworkDetailContent(artwork: ArtworkDetailUiModel) {
             )
         } else {
             Text(
-                text = stringResource(id = R.string.no_image_avalable),
+                text = stringResource(R.string.no_image_avalable),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(16.dp)
