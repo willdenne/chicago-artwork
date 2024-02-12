@@ -20,9 +20,12 @@ class ArtworkDetailScreenTests {
     @Test
     fun detailViewHasContentDescription() {
         composeTestRule.waitUntilExactlyOneExists(hasTestTag("searchBox"))
-        composeTestRule.onNodeWithTag("searchBox").performTextInput("Number 19")
+        composeTestRule.onNodeWithTag("searchBox").performTextInput("Rothko Number 19")
+        composeTestRule.onNodeWithTag("searchButton").performClick()
+        composeTestRule.waitUntilAtLeastOneExists(hasText("Number 19"))
+        // Need to clear search box so we don't click on it accidentally
+        composeTestRule.onNodeWithTag("searchBox").performTextInput("")
         composeTestRule.onNodeWithText("Number 19").performClick()
-        composeTestRule.waitUntilExactlyOneExists(hasText("Number 19"))
         composeTestRule.onNodeWithTag("artworkImage").assertContentDescriptionEquals(
             "Blurry rectangles of yellow, gray, and black float against background of orange."
         )
