@@ -2,7 +2,19 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="ArtworkScreenTests">
+        <State />
+      </entry>
       <entry key="app">
+        <State />
+      </entry>
+      <entry key="detailHasTitleDatesLoanAndDescription()">
+        <State />
+      </entry>
+      <entry key="searchBarReflectsInputText()">
+        <State />
+      </entry>
+      <entry key="searchingForInvalidArtworkShowsNoResults()">
         <State />
       </entry>
     </value>

@@ -33,6 +33,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import org.koin.androidx.compose.koinViewModel
@@ -68,6 +69,7 @@ fun ArtworkScreen(navController: NavController) {
                     modifier = Modifier
                         .padding(16.dp)
                         .fillMaxSize(),
+                    textAlign = TextAlign.Center,
                     text = stringResource(id = R.string.no_artwork),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -172,12 +174,16 @@ fun SearchBox(
             onValueChange = updateSearchText,
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 8.dp),
+                .padding(end = 8.dp)
+                .testTag("searchBox"),
             placeholder = {
                 Text(text = stringResource(id = R.string.search_ellipsis))
             },
             trailingIcon = {
-                IconButton(onClick = onSearchClicked) {
+                IconButton(
+                    modifier = Modifier.testTag("searchButton"),
+                    onClick = onSearchClicked
+                ) {
                     Icon(
                         imageVector = Icons.Rounded.Search,
                         tint = MaterialTheme.colorScheme.onBackground,
