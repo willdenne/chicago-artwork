@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
@@ -131,5 +132,22 @@ fun HTMLText(
             }
         },
         update = { it.text = spannedText }
+    )
+}
+
+@Preview
+@Composable
+fun ArtworkDetailContentPreview() {
+    ArtworkDetailContent(
+        artwork = ArtworkDetailUiModel(
+            imageUrl = "https://www.artic.edu/iiif/2/04e42e38-be5d-dacf-d627-17b2ca320cbe/full/843,/0/default.jpg",
+            contentDescription = "Artwork image",
+            title = "…And the Home of the Brave",
+            artist = "Charles Demuth\nAmerican, 1883–1935",
+            date = "1931",
+            onLoan = "On Loan",
+            description = "Charles Demuth here portrayed a cigar factory using a sharply linear, planar style inspired by streamlined machinery. The building was part of the industrial landscape in his hometown of Lancaster, Pennsylvania, which Demuth began depicting with increasing monumentality in the last years of his life. Although he presented the factory with no reference to the potentially detrimental effects of industrialization, the painting expresses some irony or ambivalence. Demuth drew the title from the last line of “The Star-Spangled Banner,” which was adopted as the United States national anthem the year he painted this work, thus implying that for many workers, the factory was the new “home of the brave.”",
+            id = 1
+        )
     )
 }

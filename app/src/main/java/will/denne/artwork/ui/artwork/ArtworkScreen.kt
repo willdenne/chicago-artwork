@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
@@ -36,6 +36,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import org.koin.androidx.compose.koinViewModel
 import will.denne.artwork.R
 import will.denne.artwork.navigation.ARTWORK_DETAIL_ROUTE
@@ -170,8 +172,7 @@ fun SearchBox(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .background(MaterialTheme.colorScheme.background, CircleShape),
+            .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextField(
@@ -179,7 +180,8 @@ fun SearchBox(
             onValueChange = updateSearchText,
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 8.dp)
+                .padding(horizontal = 4.dp)
+                .background(MaterialTheme.colorScheme.background,  RoundedCornerShape(100))
                 .testTag("searchBox"),
             placeholder = {
                 Text(text = stringResource(R.string.search_ellipsis))
@@ -198,4 +200,27 @@ fun SearchBox(
             }
         )
     }
+}
+
+@Preview
+@Composable
+fun ArtItemPreview() {
+    ArtItem(
+        art = ArtworkUiModel(
+            id = 1,
+            title = "…And the Home of the Brave",
+            artist = "Charles Demuth\nAmerican, 1883–1935"
+        ),
+        navController = rememberNavController()
+    )
+}
+
+@Preview
+@Composable
+fun SearchBoxPreview() {
+    SearchBox(
+        searchText = "Search...",
+        updateSearchText = {},
+        onSearchClicked = {}
+    )
 }
