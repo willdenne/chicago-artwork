@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -39,36 +38,38 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import org.koin.androidx.compose.koinViewModel
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import will.denne.artwork.R
 import will.denne.artwork.ui.shared.Error as ErrorComposable
 import will.denne.artwork.ui.shared.Loading
-import will.denne.artwork.viewmodel.ArtworkViewModel
 
 @Composable
 fun ArtworkScreen(
-    onArtworkSelected: (Int) -> Unit
+    uiState: ArtworkScreenState,
+    searchText: String,
+    onArtworkSelected: (Int) -> Unit,
+    retry: () -> Unit,
+    updateSearchText: (String) -> Unit,
+    searchArtwork: () -> Unit,
+    loadMoreArtwork: () -> Unit
 ) {
-    val viewModel: ArtworkViewModel = koinViewModel()
-    val uiState by viewModel.uiState.collectAsState()
-    val searchText by viewModel.searchText.collectAsState()
     when (uiState) {
         is ArtworkScreenState.Loading -> {
             Loading()
         }
         is ArtworkScreenState.Error -> {
             ErrorComposable(
-                error = (uiState as ArtworkScreenState.Error).error ?: stringResource(R.string.generic_error),
-                retry = viewModel::retry
+                error = uiState.error ?: stringResource(R.string.generic_error),
+                retry = retry
             )
         }
         is ArtworkScreenState.Empty -> {
             Column {
                 SearchBox(
                     searchText = searchText,
-                    updateSearchText = viewModel::updateSearchText,
-                    onSearchClicked = viewModel::searchArtwork
+                    updateSearchText = updateSearchText,
+                    onSearchClicked = searchArtwork
                 )
                 Text(
                     modifier = Modifier
@@ -82,12 +83,12 @@ fun ArtworkScreen(
         }
         is ArtworkScreenState.Success -> {
             ArtworkSuccessContent(
-                uiState = uiState as ArtworkScreenState.Success,
+                uiState = uiState,
                 onArtworkSelected = onArtworkSelected,
                 searchText = searchText,
-                updateSearchText = viewModel::updateSearchText,
-                searchArtwork = viewModel::searchArtwork,
-                loadMoreArtwork = viewModel::loadMoreArtwork
+                updateSearchText = updateSearchText,
+                searchArtwork = searchArtwork,
+                loadMoreArtwork = loadMoreArtwork
             )
         }
     }
@@ -246,25 +247,25 @@ fun SearchBox(
     }
 }
 
-@Preview
+@PreviewScreenSizes
+@PreviewFontScale
 @Composable
-fun ArtItemPreview() {
-    ArtItem(
-        art = ArtworkUiModel(
-            id = 1,
-            title = "…And the Home of the Brave",
-            artist = "Charles Demuth\nAmerican, 1883–1935"
+fun ArtworkSuccessContentPreview() {
+    ArtworkSuccessContent(
+        uiState = ArtworkScreenState.Success(
+            artwork = List(20) {
+                ArtworkUiModel(
+                    id = 1,
+                    title = "…And the Home of the Brave",
+                    artist = "Charles Demuth\nAmerican, 1883–1935"
+                )
+            },
+            hasLoadedLastPage = false
         ),
-        onArtworkSelected = {}
-    )
-}
-
-@Preview
-@Composable
-fun SearchBoxPreview() {
-    SearchBox(
-        searchText = "Search...",
+        onArtworkSelected = {},
+        loadMoreArtwork = {},
         updateSearchText = {},
-        onSearchClicked = {}
+        searchArtwork = {},
+        searchText = ""
     )
 }

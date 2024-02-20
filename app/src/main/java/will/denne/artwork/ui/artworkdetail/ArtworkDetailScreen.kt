@@ -13,31 +13,29 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
 import coil.compose.AsyncImage
 import com.google.android.material.textview.MaterialTextView
-import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
 import will.denne.artwork.R
 import will.denne.artwork.ui.shared.Error
 import will.denne.artwork.ui.shared.Loading
-import will.denne.artwork.viewmodel.ArtworkDetailViewModel
 
 @Composable
-fun ArtworkDetailScreen(artworkId: Int?) {
-    val viewModel: ArtworkDetailViewModel = koinViewModel { parametersOf(artworkId) }
-    val uiState by viewModel.uiState.collectAsState()
+fun ArtworkDetailScreen(
+    uiState: ArtworkDetailScreenState,
+    retry: () -> Unit
+) {
+
     when (uiState) {
         is ArtworkDetailScreenState.Loading -> {
             Loading()
@@ -45,13 +43,13 @@ fun ArtworkDetailScreen(artworkId: Int?) {
 
         is ArtworkDetailScreenState.Error -> {
             Error(
-                error = (uiState as ArtworkDetailScreenState.Error).error ?: stringResource(id = R.string.generic_error),
-                retry = viewModel::retry
+                error = uiState.error ?: stringResource(id = R.string.generic_error),
+                retry = retry
             )
         }
 
         is ArtworkDetailScreenState.Success -> {
-            ArtworkDetailContent(artwork = (uiState as ArtworkDetailScreenState.Success).artwork)
+            ArtworkDetailContent(artwork = uiState.artwork)
         }
     }
 }
@@ -181,10 +179,8 @@ fun HTMLText(
     )
 }
 
-@Preview
-@Preview(
-    device = "spec:orientation=landscape,width=350dp,height=800dp"
-)
+@PreviewScreenSizes
+@PreviewFontScale
 @Composable
 fun ArtworkDetailContentPreview() {
     ArtworkDetailContent(
