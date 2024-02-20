@@ -6,9 +6,11 @@ import assertk.assertions.isEqualTo
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
+import will.denne.artwork.data.NetworkResult
 import will.denne.artwork.data.model.artWorkDetailDataBuilder
 import will.denne.artwork.data.repository.ArtworkRepository
 import will.denne.artwork.ui.artworkdetail.ArtworkDetailScreenState
@@ -26,10 +28,18 @@ class ArtworkDetailViewModelTest {
 
         coEvery {
             artworkRepository.getArtworkDetail(any())
-        } returns artWorkDetailDataBuilder()
+        } coAnswers {
+            delay(1000)
+            NetworkResult.Success(
+                artWorkDetailDataBuilder()
+            )
+        }
         val viewModel = ArtworkDetailViewModel(1, artworkRepository)
 
         viewModel.uiState.test {
+            assertThat(awaitItem()).isEqualTo(
+                ArtworkDetailScreenState.Loading
+            )
             assertThat(awaitItem()).isEqualTo(
                 ArtworkDetailScreenState.Success(
                     ArtworkDetailUiModel(
@@ -56,10 +66,16 @@ class ArtworkDetailViewModelTest {
 
         coEvery {
             artworkRepository.getArtworkDetail(any())
-        } throws Exception("Error getting artwork details")
+        } coAnswers {
+            delay(1000)
+            NetworkResult.Error(Exception("Error getting artwork details"))
+        }
         val viewModel = ArtworkDetailViewModel(1, artworkRepository)
 
         viewModel.uiState.test {
+            assertThat(awaitItem()).isEqualTo(
+                ArtworkDetailScreenState.Loading
+            )
             assertThat(awaitItem()).isEqualTo(
                 ArtworkDetailScreenState.Error(
                     "Error getting artwork details"

@@ -5,9 +5,11 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
+import will.denne.artwork.data.NetworkResult
 import will.denne.artwork.data.model.artWorkDataBuilder
 import will.denne.artwork.data.model.artworkListBuilder
 import will.denne.artwork.data.model.paginationBuilder
@@ -27,14 +29,22 @@ class ArtworkViewModelTest {
 
         coEvery {
             artworkRepository.getArtworkList(any())
-        } returns artWorkDataBuilder(
-            pagination = paginationBuilder(
-                totalPages = 2
+        } coAnswers {
+            delay(1000)
+            NetworkResult.Success(
+                artWorkDataBuilder(
+                    pagination = paginationBuilder(
+                        totalPages = 2
+                    )
+                )
             )
-        )
+        }
         val viewModel = ArtworkViewModel(artworkRepository)
 
         viewModel.uiState.test {
+            assertThat(awaitItem()).isEqualTo(
+                ArtworkScreenState.Loading
+            )
             assertThat(awaitItem()).isEqualTo(
                 ArtworkScreenState.Success(
                     listOf(
@@ -56,26 +66,39 @@ class ArtworkViewModelTest {
 
         coEvery {
             artworkRepository.getArtworkList(any())
-        } returns artWorkDataBuilder(
-            pagination = paginationBuilder(
-                totalPages = 2
+        } coAnswers {
+            delay(1000)
+            NetworkResult.Success(
+                artWorkDataBuilder(
+                    pagination = paginationBuilder(
+                        totalPages = 2
+                    )
+                )
             )
-        )
+        }
         coEvery {
             artworkRepository.getArtworkList(2)
-        } returns artWorkDataBuilder(
-            data = listOf(
-                artworkListBuilder(
-                    id = 2
+        } coAnswers {
+            delay(1000)
+            NetworkResult.Success(
+                artWorkDataBuilder(
+                    data = listOf(
+                        artworkListBuilder(
+                            id = 2
+                        )
+                    ),
+                    pagination = paginationBuilder(
+                        totalPages = 2
+                    )
                 )
-            ),
-            pagination = paginationBuilder(
-                totalPages = 2
             )
-        )
+        }
         val viewModel = ArtworkViewModel(artworkRepository)
 
         viewModel.uiState.test {
+            assertThat(awaitItem()).isEqualTo(
+                ArtworkScreenState.Loading
+            )
             assertThat(awaitItem()).isEqualTo(
                 ArtworkScreenState.Success(
                     listOf(
@@ -88,9 +111,7 @@ class ArtworkViewModelTest {
                     hasLoadedLastPage = false
                 )
             )
-        }
-        viewModel.loadMoreArtwork()
-        viewModel.uiState.test {
+            viewModel.loadMoreArtwork()
             assertThat(awaitItem()).isEqualTo(
                 ArtworkScreenState.Success(
                     listOf(

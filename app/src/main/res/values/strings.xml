@@ -5,6 +5,7 @@
     <string name="no_artwork">No artwork matched your query, please try another search.</string>
     <string name="search">Search</string>
     <string name="search_ellipsis">Search…</string>
-    <string name="error">Whoops something went wrong</string>
-    <string name="no_image_avalable">No image available</string>
+    <string name="error_title">Let\'s try that again.</string>
+    <string name="no_image_available">No image available</string>
+    <string name="generic_error">Whoops, something went wrong.</string>
 </resources>

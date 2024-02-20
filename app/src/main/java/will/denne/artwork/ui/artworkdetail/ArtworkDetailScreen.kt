@@ -1,7 +1,9 @@
 package will.denne.artwork.ui.artworkdetail
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +17,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -42,7 +45,7 @@ fun ArtworkDetailScreen(artworkId: Int?) {
 
         is ArtworkDetailScreenState.Error -> {
             Error(
-                error = (uiState as ArtworkDetailScreenState.Error).errorMessage,
+                error = (uiState as ArtworkDetailScreenState.Error).error ?: stringResource(id = R.string.generic_error),
                 retry = viewModel::retry
             )
         }
@@ -55,65 +58,108 @@ fun ArtworkDetailScreen(artworkId: Int?) {
 
 @Composable
 fun ArtworkDetailContent(artwork: ArtworkDetailUiModel) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (artwork.imageUrl != null) {
-            AsyncImage(
-                model = artwork.imageUrl,
+    val configuration = LocalConfiguration.current
+
+    // Row if landscape, Column if portrait
+    if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        Row(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            ImageContent(
+                imageUrl = artwork.imageUrl,
                 contentDescription = artwork.contentDescription,
+                modifier = Modifier.fillMaxWidth(.5f)
+            )
+            ArtworkDescriptionContent(
+                artwork = artwork,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1f)
-                    .testTag("artworkImage")
-            )
-        } else {
-            Text(
-                text = stringResource(R.string.no_image_avalable),
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(16.dp)
+                    .padding(top = 8.dp)
             )
         }
+    } else {
         Column(
-            Modifier
-                .padding(horizontal = 16.dp)
-                .verticalScroll(rememberScrollState())
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally),
-                text = artwork.title,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.headlineMedium
+            ImageContent(
+                imageUrl = artwork.imageUrl,
+                contentDescription = artwork.contentDescription
             )
-            Text(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally),
-                text = artwork.artist,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Text(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally),
-                text = artwork.date,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            HTMLText(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally),
-                text = artwork.onLoan
-            )
-            HTMLText(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally),
-                text = artwork.description
+            ArtworkDescriptionContent(
+                artwork = artwork
             )
         }
+    }
+}
+
+@Composable
+fun ImageContent(
+    modifier: Modifier = Modifier,
+    imageUrl: String?,
+    contentDescription: String?
+) {
+    if (imageUrl != null) {
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = contentDescription,
+            modifier = modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .testTag("artworkImage")
+        )
+    } else {
+        Text(
+            text = stringResource(R.string.no_image_available),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Composable
+fun ArtworkDescriptionContent(
+    artwork: ArtworkDetailUiModel,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier
+            .padding(horizontal = 16.dp)
+            .verticalScroll(rememberScrollState())
+    ) {
+        Text(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally),
+            text = artwork.title,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.headlineMedium
+        )
+        Text(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally),
+            text = artwork.artist,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.headlineSmall
+        )
+        Text(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally),
+            text = artwork.date,
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        HTMLText(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally),
+            text = artwork.onLoan
+        )
+        HTMLText(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally),
+            text = artwork.description
+        )
     }
 }
 
@@ -136,6 +182,9 @@ fun HTMLText(
 }
 
 @Preview
+@Preview(
+    device = "spec:orientation=landscape,width=350dp,height=800dp"
+)
 @Composable
 fun ArtworkDetailContentPreview() {
     ArtworkDetailContent(

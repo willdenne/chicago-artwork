@@ -1,5 +1,7 @@
 package will.denne.artwork.data.model
 
+import will.denne.artwork.data.NetworkResult
+
 fun artWorkDetailDataBuilder(
     id: Int = 1,
     title: String = "title",

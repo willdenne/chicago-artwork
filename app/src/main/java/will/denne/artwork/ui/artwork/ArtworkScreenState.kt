@@ -8,7 +8,7 @@ sealed class ArtworkScreenState {
         val artwork: List<ArtworkUiModel>,
         val hasLoadedLastPage: Boolean
     ): ArtworkScreenState()
-    data class Error(val error: Exception): ArtworkScreenState()
+    data class Error(val error: String? = null): ArtworkScreenState()
     data object Empty: ArtworkScreenState()
 }
 

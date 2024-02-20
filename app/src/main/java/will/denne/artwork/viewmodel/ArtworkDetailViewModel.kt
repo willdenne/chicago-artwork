@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import will.denne.artwork.data.NetworkResult
 import will.denne.artwork.data.repository.ArtworkRepository
 import will.denne.artwork.ui.artworkdetail.ArtworkDetailScreenState
 import will.denne.artwork.ui.artworkdetail.ArtworkDetailUiModel
@@ -28,14 +29,15 @@ class ArtworkDetailViewModel(
     private fun getArtworkDetail() {
         _uiState.value = ArtworkDetailScreenState.Loading
         viewModelScope.launch {
-            try {
-                val artwork = artworkRepository.getArtworkDetail(artworkId)
+            val artworkResult = artworkRepository.getArtworkDetail(artworkId)
+            if (artworkResult is NetworkResult.Success) {
                 _uiState.value = ArtworkDetailScreenState.Success(
-                    ArtworkDetailUiModel.fromArtworkData(artwork)
+                    ArtworkDetailUiModel.fromArtworkData(artworkResult.result)
                 )
-            } catch (e: Exception) {
-                Timber.e(e, "Error getting artwork details")
-                _uiState.value = ArtworkDetailScreenState.Error(e.message ?: "Unknown error")
+            } else {
+                artworkResult as NetworkResult.Error
+                Timber.e(artworkResult.exception, "Error getting artwork details")
+                _uiState.value = ArtworkDetailScreenState.Error(artworkResult.exception.message)
             }
         }
     }

@@ -26,7 +26,7 @@ fun Error(
         modifier = modifier.padding(top = 24.dp)
     ) {
         Text(
-            text = stringResource(R.string.error),
+            text = stringResource(R.string.error_title),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.error,
             modifier = Modifier

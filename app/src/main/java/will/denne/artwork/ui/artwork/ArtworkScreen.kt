@@ -19,7 +19,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -37,16 +36,16 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.rememberNavController
 import org.koin.androidx.compose.koinViewModel
 import will.denne.artwork.R
-import will.denne.artwork.navigation.ARTWORK_DETAIL_ROUTE
 import will.denne.artwork.ui.shared.Error as ErrorComposable
 import will.denne.artwork.ui.shared.Loading
 import will.denne.artwork.viewmodel.ArtworkViewModel
 
 @Composable
-fun ArtworkScreen(navController: NavController) {
+fun ArtworkScreen(
+    onArtworkSelected: (Int) -> Unit
+) {
     val viewModel: ArtworkViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsState()
     val searchText by viewModel.searchText.collectAsState()
@@ -56,7 +55,7 @@ fun ArtworkScreen(navController: NavController) {
         }
         is ArtworkScreenState.Error -> {
             ErrorComposable(
-                error = (uiState as ArtworkScreenState.Error).error.message,
+                error = (uiState as ArtworkScreenState.Error).error ?: stringResource(id = R.string.generic_error),
                 retry = viewModel::retry
             )
         }
@@ -106,7 +105,7 @@ fun ArtworkScreen(navController: NavController) {
                     val artwork = (uiState as? ArtworkScreenState.Success)?.artwork
                     if (artwork != null) {
                         items(artwork) { art ->
-                            ArtItem(art, navController)
+                            ArtItem(art, onArtworkSelected)
                         }
                     }
                     item {
@@ -128,7 +127,7 @@ fun ArtworkScreen(navController: NavController) {
 @Composable
 fun ArtItem(
     art: ArtworkUiModel,
-    navController: NavController,
+    onArtworkSelected: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -136,7 +135,7 @@ fun ArtItem(
         modifier = modifier
             .fillMaxWidth()
             .clickable {
-                navController.navigate("$ARTWORK_DETAIL_ROUTE/${art.id}")
+                onArtworkSelected(art.id)
             }
     ) {
         Row(modifier = Modifier.padding(8.dp)) {
@@ -211,7 +210,7 @@ fun ArtItemPreview() {
             title = "…And the Home of the Brave",
             artist = "Charles Demuth\nAmerican, 1883–1935"
         ),
-        navController = rememberNavController()
+        onArtworkSelected = {}
     )
 }
 

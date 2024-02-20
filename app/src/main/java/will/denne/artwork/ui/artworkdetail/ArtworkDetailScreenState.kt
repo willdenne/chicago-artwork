@@ -6,7 +6,7 @@ import will.denne.artwork.util.ImageLinkGenerator
 sealed class ArtworkDetailScreenState {
     data object Loading: ArtworkDetailScreenState()
     data class Success(val artwork: ArtworkDetailUiModel): ArtworkDetailScreenState()
-    data class Error(val errorMessage: String): ArtworkDetailScreenState()
+    data class Error(val error: String? = null): ArtworkDetailScreenState()
 }
 
 data class ArtworkDetailUiModel(
