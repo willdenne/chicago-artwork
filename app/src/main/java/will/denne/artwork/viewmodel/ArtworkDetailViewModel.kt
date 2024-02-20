@@ -3,6 +3,7 @@ package will.denne.artwork.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import will.denne.artwork.data.NetworkResult
@@ -16,7 +17,7 @@ class ArtworkDetailViewModel(
 ): ViewModel() {
     private val _uiState: MutableStateFlow<ArtworkDetailScreenState> =
         MutableStateFlow(ArtworkDetailScreenState.Loading)
-    val uiState: MutableStateFlow<ArtworkDetailScreenState> = _uiState
+    val uiState: StateFlow<ArtworkDetailScreenState> = _uiState
 
     init {
         getArtworkDetail()
@@ -29,15 +30,16 @@ class ArtworkDetailViewModel(
     private fun getArtworkDetail() {
         _uiState.value = ArtworkDetailScreenState.Loading
         viewModelScope.launch {
-            val artworkResult = artworkRepository.getArtworkDetail(artworkId)
-            if (artworkResult is NetworkResult.Success) {
-                _uiState.value = ArtworkDetailScreenState.Success(
-                    ArtworkDetailUiModel.fromArtworkData(artworkResult.result)
-                )
-            } else {
-                artworkResult as NetworkResult.Error
-                Timber.e(artworkResult.exception, "Error getting artwork details")
-                _uiState.value = ArtworkDetailScreenState.Error(artworkResult.exception.message)
+            when (val artworkResult = artworkRepository.getArtworkDetail(artworkId)) {
+                is NetworkResult.Success -> {
+                    _uiState.value = ArtworkDetailScreenState.Success(
+                        ArtworkDetailUiModel.fromArtworkData(artworkResult.result)
+                    )
+                }
+                is NetworkResult.Error -> {
+                    Timber.e(artworkResult.exception, "Error getting artwork details")
+                    _uiState.value = ArtworkDetailScreenState.Error(artworkResult.exception.message)
+                }
             }
         }
     }

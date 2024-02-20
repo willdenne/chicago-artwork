@@ -15,43 +15,38 @@ class ArtworkRepositoryImpl(
     private val api: ArticApi
 ): ArtworkRepository {
     override suspend fun getArtworkDetail(id: Int): NetworkResult<ArtworkDetailData> {
-        return try {
-            val artwork = api.getArtworkDetails(
-                id = id,
-                fields = listOfArtworkDetailsFields.joinToString(",")
-            )
-            NetworkResult.Success(artwork.data)
-        } catch (e: Exception) {
-            NetworkResult.Error(e)
+        val result = api.getArtworkDetails(
+            id = id,
+            fields = listOfArtworkDetailsFields.joinToString(",")
+        ).getOrElse { throwable ->
+            return NetworkResult.Error(throwable)
         }
+        return NetworkResult.Success(result.data)
     }
 
     override suspend fun getArtworkList(pageNumber: Int): NetworkResult<ArtworkData> {
-        val queryListOfFields = listOfArtworkListFields.joinToString(",")
-        return try {
-            val artwork = api.getArtwork(
+        return NetworkResult.Success(
+            api.getArtwork(
                 page = pageNumber,
-                fields = queryListOfFields,
+                fields = listOfArtworkListFields.joinToString(","),
                 size = PAGE_SIZE
-            )
-            NetworkResult.Success(artwork)
-        } catch (e: Exception) {
-            NetworkResult.Error(e)
-        }
+            ).getOrElse { throwable ->
+                return NetworkResult.Error(throwable)
+            }
+        )
     }
 
     override suspend fun searchArtwork(page: Int, query: String): NetworkResult<ArtworkData> {
-        return try {
-            val artwork = api.searchArtworks(
+        return NetworkResult.Success(
+            api.searchArtworks(
                 page = page,
                 query = query,
-                fields = listOfArtworkListFields.joinToString( ","),
+                fields = listOfArtworkListFields.joinToString(","),
                 size = PAGE_SIZE
-            )
-            NetworkResult.Success(artwork)
-        } catch (e: Exception) {
-            NetworkResult.Error(e)
-        }
+            ).getOrElse { throwable ->
+                return NetworkResult.Error(throwable)
+            }
+        )
     }
 
     companion object {

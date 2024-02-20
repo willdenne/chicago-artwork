@@ -13,7 +13,7 @@ fun NavGraphBuilder.artworkDetailScreen() {
     composable(
         route = "$ARTWORK_DETAIL_ROUTE/{$ARTWORK_ID_ARG}",
         arguments = listOf(navArgument(ARTWORK_ID_ARG) { type = NavType.IntType })
-        ) { backStackEntry ->
+    ) { backStackEntry ->
         ArtworkDetailScreen(
             artworkId = backStackEntry.arguments?.getInt(ARTWORK_ID_ARG) ?: 0
         )

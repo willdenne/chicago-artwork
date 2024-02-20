@@ -19,6 +19,7 @@ class ArtworkViewModel(
         MutableStateFlow(ArtworkScreenState.Loading)
     val uiState: StateFlow<ArtworkScreenState> = _uiState
 
+    // Outside of ui state so that ui state can be empty and search text still exists
     private val _searchText: MutableStateFlow<String> = MutableStateFlow("")
     val searchText: StateFlow<String> = _searchText
 
@@ -46,24 +47,25 @@ class ArtworkViewModel(
             return
         }
         viewModelScope.launch {
-            val artworkResult = artworkRepository.searchArtwork(currentPage, _searchText.value)
-            if (artworkResult is NetworkResult.Success) {
-                if (artworkResult.result.data.isEmpty()) {
-                    Timber.e("Error getting artwork, list is empty")
-                    _uiState.value =
-                        ArtworkScreenState.Empty
-                } else {
-                    _uiState.value = ArtworkScreenState.Success(
-                        artworkResult.result.data.map {
-                            ArtworkUiModel.fromArtworkData(it)
-                        },
-                        hasLoadedLastPage = artworkResult.result.pagination.totalPages <= currentPage
-                    )
+            when (val artworkResult = artworkRepository.searchArtwork(currentPage, _searchText.value)) {
+                is NetworkResult.Success -> {
+                    if (artworkResult.result.data.isEmpty()) {
+                        Timber.e("Error getting artwork, list is empty")
+                        _uiState.value =
+                            ArtworkScreenState.Empty
+                    } else {
+                        _uiState.value = ArtworkScreenState.Success(
+                            artworkResult.result.data.map {
+                                ArtworkUiModel.fromArtworkData(it)
+                            },
+                            hasLoadedLastPage = artworkResult.result.pagination.totalPages <= currentPage
+                        )
+                    }
                 }
-            } else {
-                artworkResult as NetworkResult.Error
-                Timber.e(artworkResult.exception, "Error searching artwork")
-                _uiState.value = ArtworkScreenState.Error(artworkResult.exception.message)
+                is NetworkResult.Error -> {
+                    Timber.e(artworkResult.exception, "Error searching artwork")
+                    _uiState.value = ArtworkScreenState.Error(artworkResult.exception.message)
+                }
             }
         }
     }
@@ -75,32 +77,31 @@ class ArtworkViewModel(
     fun loadMoreArtwork() {
         currentPage++
         viewModelScope.launch {
-
             val artworkResult = if (_searchText.value.isEmpty()) {
                 artworkRepository.getArtworkList(currentPage)
             } else {
                 artworkRepository.searchArtwork(currentPage, _searchText.value)
             }
             val oldList = (_uiState.value as? ArtworkScreenState.Success)?.artwork?.toMutableList() ?: emptyList()
-            if (artworkResult is NetworkResult.Success) {
-                if (artworkResult.result.data.isEmpty() && oldList.isEmpty()) {
-                    Timber.e("Error getting artwork, list is empty")
-                    _uiState.value =
-                        ArtworkScreenState.Empty
-                    return@launch
-                } else {
-                    _uiState.value = ArtworkScreenState.Success(
-                        oldList + artworkResult.result.data.map {
-                            ArtworkUiModel.fromArtworkData(it)
-                        },
-                        hasLoadedLastPage = artworkResult.result.pagination.totalPages <= currentPage
-                    )
+            when (artworkResult) {
+                is NetworkResult.Success -> {
+                    if (artworkResult.result.data.isEmpty() && oldList.isEmpty()) {
+                        Timber.e("Error getting artwork, list is empty")
+                        _uiState.value =
+                            ArtworkScreenState.Empty
+                    } else {
+                        _uiState.value = ArtworkScreenState.Success(
+                            oldList + artworkResult.result.data.map {
+                                ArtworkUiModel.fromArtworkData(it)
+                            },
+                            hasLoadedLastPage = artworkResult.result.pagination.totalPages <= currentPage
+                        )
+                    }
                 }
-            } else {
-                artworkResult as NetworkResult.Error
-                Timber.e(artworkResult.exception, "Error getting more artwork")
-                _uiState.value = ArtworkScreenState.Error(artworkResult.exception.message)
-                return@launch
+                is NetworkResult.Error -> {
+                    Timber.e(artworkResult.exception, "Error getting more artwork")
+                    _uiState.value = ArtworkScreenState.Error(artworkResult.exception.message)
+                }
             }
         }
     }
@@ -109,24 +110,25 @@ class ArtworkViewModel(
         currentPage = 1
         _uiState.value = ArtworkScreenState.Loading
         viewModelScope.launch {
-            val artworkResult = artworkRepository.getArtworkList(currentPage)
-            if (artworkResult is NetworkResult.Success) {
-                if (artworkResult.result.data.isEmpty()) {
-                    Timber.e("Error getting artwork, list is empty")
-                    _uiState.value =
-                        ArtworkScreenState.Empty
-                } else {
-                    _uiState.value = ArtworkScreenState.Success(
-                        artworkResult.result.data.map {
-                            ArtworkUiModel.fromArtworkData(it)
-                        },
-                        hasLoadedLastPage = artworkResult.result.pagination.totalPages <= currentPage
-                    )
+            when (val artworkResult = artworkRepository.getArtworkList(currentPage)) {
+                is NetworkResult.Success -> {
+                    if (artworkResult.result.data.isEmpty()) {
+                        Timber.e("Error getting artwork, list is empty")
+                        _uiState.value =
+                            ArtworkScreenState.Empty
+                    } else {
+                        _uiState.value = ArtworkScreenState.Success(
+                            artworkResult.result.data.map {
+                                ArtworkUiModel.fromArtworkData(it)
+                            },
+                            hasLoadedLastPage = artworkResult.result.pagination.totalPages <= currentPage
+                        )
+                    }
                 }
-            } else {
-                artworkResult as NetworkResult.Error
-                Timber.e(artworkResult.exception, "Error getting artwork")
-                _uiState.value = ArtworkScreenState.Error(artworkResult.exception.message)
+                is NetworkResult.Error -> {
+                    Timber.e(artworkResult.exception, "Error getting artwork")
+                    _uiState.value = ArtworkScreenState.Error(artworkResult.exception.message)
+                }
             }
         }
     }

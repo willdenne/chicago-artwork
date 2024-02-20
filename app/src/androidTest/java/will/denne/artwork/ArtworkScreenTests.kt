@@ -31,4 +31,13 @@ class ArtworkScreenTests {
         composeTestRule.onNodeWithTag("searchButton").performClick()
         composeTestRule.waitUntilExactlyOneExists(hasText("No artwork matched your query, please try another search."))
     }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun searchingForLimitedSearchResultsDisplaysText() {
+        composeTestRule.waitUntilExactlyOneExists(hasTestTag("searchBox"))
+        composeTestRule.onNodeWithTag("searchBox").performTextInput("number 19")
+        composeTestRule.onNodeWithTag("searchButton").performClick()
+        composeTestRule.waitUntilExactlyOneExists(hasText("That's it, you've seen all of the art."))
+    }
 }

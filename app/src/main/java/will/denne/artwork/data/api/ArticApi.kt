@@ -13,13 +13,13 @@ interface ArticApi {
         @Query("page") page: Int,
         @Query("fields") fields: String,
         @Query("limit") size: Int
-    ): ArtworkData
+    ): Result<ArtworkData>
 
     @GET("/api/v1/artworks/{id}")
     suspend fun getArtworkDetails(
         @Path("id") id: Int,
         @Query("fields") fields: String
-    ): ArtworkDetail
+    ): Result<ArtworkDetail>
 
     @GET("/api/v1/artworks/search")
     suspend fun searchArtworks(
@@ -27,5 +27,5 @@ interface ArticApi {
         @Query("q") query: String,
         @Query("fields") fields: String,
         @Query("limit") size: Int
-    ): ArtworkData
+    ): Result<ArtworkData>
 }

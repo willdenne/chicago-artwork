@@ -1,6 +1,7 @@
 package will.denne.artwork.koin
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.skydoves.retrofit.adapters.result.ResultCallAdapterFactory
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -42,6 +43,7 @@ object KoinModule {
         .addConverterFactory(
             json.asConverterFactory("application/json".toMediaType())
         )
+        .addCallAdapterFactory(ResultCallAdapterFactory.create())
         .build()
 
     private fun provideArticApi(retrofit: Retrofit): ArticApi {

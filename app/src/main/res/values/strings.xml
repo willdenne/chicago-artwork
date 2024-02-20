@@ -8,4 +8,5 @@
     <string name="error_title">Let\'s try that again.</string>
     <string name="no_image_available">No image available</string>
     <string name="generic_error">Whoops, something went wrong.</string>
+    <string name="end_of_list">That\'s it, you\'ve seen all of the art.</string>
 </resources>

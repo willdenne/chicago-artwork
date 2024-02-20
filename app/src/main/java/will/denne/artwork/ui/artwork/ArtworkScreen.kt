@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Card
@@ -34,6 +36,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import org.koin.androidx.compose.koinViewModel
@@ -55,7 +59,7 @@ fun ArtworkScreen(
         }
         is ArtworkScreenState.Error -> {
             ErrorComposable(
-                error = (uiState as ArtworkScreenState.Error).error ?: stringResource(id = R.string.generic_error),
+                error = (uiState as ArtworkScreenState.Error).error ?: stringResource(R.string.generic_error),
                 retry = viewModel::retry
             )
         }
@@ -77,47 +81,79 @@ fun ArtworkScreen(
             }
         }
         is ArtworkScreenState.Success -> {
-            val listState = rememberLazyListState()
+            ArtworkSuccessContent(
+                uiState = uiState as ArtworkScreenState.Success,
+                onArtworkSelected = onArtworkSelected,
+                searchText = searchText,
+                updateSearchText = viewModel::updateSearchText,
+                searchArtwork = viewModel::searchArtwork,
+                loadMoreArtwork = viewModel::loadMoreArtwork
+            )
+        }
+    }
+}
 
-            fun LazyListState.isScrolledToEnd(): Boolean {
-                return layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 10
+// Made this a separate composable so for readability
+@Composable
+fun ArtworkSuccessContent(
+    uiState: ArtworkScreenState.Success,
+    onArtworkSelected: (Int) -> Unit,
+    loadMoreArtwork: () -> Unit,
+    updateSearchText: (String) -> Unit,
+    searchArtwork: () -> Unit,
+    searchText: String
+) {
+    val listState = rememberLazyListState()
+
+    fun LazyListState.isScrolledToEnd(): Boolean {
+        return layoutInfo.visibleItemsInfo.lastOrNull()?.index == layoutInfo.totalItemsCount - 10
+    }
+
+    val scrollState = rememberLazyListState()
+
+    val endOfListReached by remember {
+        derivedStateOf {
+            scrollState.isScrolledToEnd()
+        }
+    }
+
+    Column {
+        SearchBox(
+            searchText = searchText,
+            updateSearchText = updateSearchText,
+            onSearchClicked = searchArtwork
+        )
+        LazyColumn(
+            state = listState,
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(uiState.artwork) { art ->
+                ArtItem(art, onArtworkSelected)
             }
-
-            val scrollState = rememberLazyListState()
-
-            val endOfListReached by remember {
-                derivedStateOf {
-                    scrollState.isScrolledToEnd()
+            item {
+                LaunchedEffect(
+                    endOfListReached
+                ) {
+                    if ( !uiState.hasLoadedLastPage ) {
+                        loadMoreArtwork()
+                    }
                 }
             }
-
-            Column {
-                SearchBox(
-                    searchText = searchText,
-                    updateSearchText = viewModel::updateSearchText,
-                    onSearchClicked = viewModel::searchArtwork
-                )
-                LazyColumn(
-                    state = listState,
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    val artwork = (uiState as? ArtworkScreenState.Success)?.artwork
-                    if (artwork != null) {
-                        items(artwork) { art ->
-                            ArtItem(art, onArtworkSelected)
-                        }
-                    }
-                    item {
-                        val hasLoadedLastPage = (uiState as? ArtworkScreenState.Success)?.hasLoadedLastPage == true
-                        LaunchedEffect(
-                            endOfListReached
-                        ) {
-                            if ( !hasLoadedLastPage ) {
-                                viewModel.loadMoreArtwork()
-                            }
-                        }
-                    }
+            if (uiState.hasLoadedLastPage) {
+                item {
+                    Text(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        text = stringResource(R.string.end_of_list),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+            } else {
+                item {
+                    Loading()
                 }
             }
         }
@@ -180,7 +216,7 @@ fun SearchBox(
             modifier = Modifier
                 .weight(1f)
                 .padding(horizontal = 4.dp)
-                .background(MaterialTheme.colorScheme.background,  RoundedCornerShape(100))
+                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(100))
                 .testTag("searchBox"),
             placeholder = {
                 Text(text = stringResource(R.string.search_ellipsis))
@@ -196,7 +232,16 @@ fun SearchBox(
                         contentDescription = stringResource(R.string.search)
                     )
                 }
-            }
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = {
+                    onSearchClicked()
+                }
+            )
         )
     }
 }

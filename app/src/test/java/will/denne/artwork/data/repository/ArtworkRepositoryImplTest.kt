@@ -30,7 +30,7 @@ class ArtworkRepositoryImplTest {
                 any(),
                 any()
             )
-        } returns artWorkDataBuilder()
+        } returns Result.success(artWorkDataBuilder())
         coEvery {
             api.searchArtworks(
                 any(),
@@ -38,13 +38,13 @@ class ArtworkRepositoryImplTest {
                 any(),
                 any()
             )
-        } returns artWorkDataBuilder()
+        } returns Result.success(artWorkDataBuilder())
         coEvery {
             api.getArtworkDetails(
                 any(),
                 any()
             )
-        } returns ArtworkDetail(artWorkDetailDataBuilder())
+        } returns Result.success(ArtworkDetail(artWorkDetailDataBuilder()))
         repository = ArtworkRepositoryImpl(api)
     }
 
