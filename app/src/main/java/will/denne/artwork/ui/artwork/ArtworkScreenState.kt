@@ -3,6 +3,7 @@ package will.denne.artwork.ui.artwork
 import will.denne.artwork.data.model.ArtworkListItemData
 
 sealed class ArtworkScreenState {
+    data object InitialLoading: ArtworkScreenState()
     data object Loading: ArtworkScreenState()
     data class Success(
         val artwork: List<ArtworkUiModel>,

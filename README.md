@@ -6,6 +6,7 @@ Some libraries I'm using:
    - Retrofit
    - KotlinX Serialization
    - OkHttp
+   - Skydove's Kotlin Result Retrofit Adapter
  - # Dependency Injection:
     - Koin (simple parameterized DI ftw!)
  - # View:

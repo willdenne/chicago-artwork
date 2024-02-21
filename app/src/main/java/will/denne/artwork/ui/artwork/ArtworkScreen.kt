@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -41,8 +44,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import will.denne.artwork.R
-import will.denne.artwork.ui.shared.Error as ErrorComposable
+import will.denne.artwork.ui.shared.Error
 import will.denne.artwork.ui.shared.Loading
+import will.denne.artwork.ui.shared.LoadingLogo
 
 @Composable
 fun ArtworkScreen(
@@ -55,13 +59,25 @@ fun ArtworkScreen(
     loadMoreArtwork: () -> Unit
 ) {
     when (uiState) {
+        is ArtworkScreenState.InitialLoading -> {
+            LoadingLogo(
+                modifier = Modifier
+                    .size(200.dp)
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .wrapContentHeight(Alignment.CenterVertically)
+            )
+        }
         is ArtworkScreenState.Loading -> {
             Loading()
         }
         is ArtworkScreenState.Error -> {
-            ErrorComposable(
+            Error(
                 error = uiState.error ?: stringResource(R.string.generic_error),
-                retry = retry
+                retry = retry,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .wrapContentHeight(Alignment.CenterVertically)
             )
         }
         is ArtworkScreenState.Empty -> {

@@ -9,4 +9,8 @@
     <string name="no_image_available">No image available</string>
     <string name="generic_error">Whoops, something went wrong.</string>
     <string name="end_of_list">That\'s it, you\'ve seen all of the art.</string>
+    <string name="chicago">Chicago</string>
+    <string name="art">Art</string>
+    <!-- misspelled on purpose -->
+    <string name="institute">Institvte</string>
 </resources>
